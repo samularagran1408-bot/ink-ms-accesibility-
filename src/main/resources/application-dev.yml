@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: ink-ms-accessibility
+  
+  data:
+    mongodb:
+      auto-index-creation: false
+
+server:
+  port: 3004
+
+jwt:
+  secret: inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512
+  expiration: 86400000
+
+logging:
+  level:
+    com.inklusport.accessibility: DEBUG

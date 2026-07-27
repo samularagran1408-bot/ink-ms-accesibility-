@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: ink-ms-accessibility
+  
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@mongodb:27017/accessibility_notifications_db?authSource=admin
+      database: accessibility_notifications_db
+      auto-index-creation: false
+  
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  port: 3004
+
+jwt:
+  secret: inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512
+  expiration: 86400000
+
+auth:
+  service:
+    url: http://auth-service:3001
+
+security:
+  basic:
+    enabled: false
+
+logging:
+  level:
+    com.inklusport.accessibility: DEBUG
