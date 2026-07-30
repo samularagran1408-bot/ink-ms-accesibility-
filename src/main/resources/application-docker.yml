@@ -4,8 +4,10 @@ spring:
   
   data:
     mongodb:
-      uri: mongodb://admin:admin123@mongodb:27017/accessibility_notifications_db?authSource=admin
-      database: accessibility_notifications_db
+      # Sin valor por defecto: la URI lleva usuario y contraseña dentro, así que no
+      # debe quedar escrita en el repositorio.
+      uri: ${MONGODB_URI}
+      database: ${MONGODB_DB:accessibility_notifications_db}
       auto-index-creation: false
   
   main:
@@ -15,12 +17,14 @@ server:
   port: 3004
 
 jwt:
-  secret: inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512
-  expiration: 86400000
+  # Sin valor por defecto a propósito: si falta la variable el servicio no arranca,
+  # en lugar de validar tokens con un secreto conocido.
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 auth:
   service:
-    url: http://auth-service:3001
+    url: ${AUTH_SERVICE_URL:http://auth-service:3001}
 
 security:
   basic:
@@ -28,4 +32,4 @@ security:
 
 logging:
   level:
-    com.inklusport.accessibility: DEBUG
+    com.inklusport.accessibility: ${LOG_LEVEL:DEBUG}

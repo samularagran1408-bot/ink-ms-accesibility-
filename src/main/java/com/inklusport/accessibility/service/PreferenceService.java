@@ -36,6 +36,9 @@ public class PreferenceService {
         if (request.getKeyboardNavigation() != null) preference.setKeyboardNavigation(request.getKeyboardNavigation());
         if (request.getReaderMode() != null) preference.setReaderMode(request.getReaderMode());
         if (request.getNotificationsEnabled() != null) preference.setNotificationsEnabled(request.getNotificationsEnabled());
+        if (request.getVoiceCommandsEnabled() != null) preference.setVoiceCommandsEnabled(request.getVoiceCommandsEnabled());
+        if (request.getTtsEnabled() != null) preference.setTtsEnabled(request.getTtsEnabled());
+        if (request.getVoiceLanguage() != null) preference.setVoiceLanguage(normalizeVoiceLanguage(request.getVoiceLanguage()));
 
         preference = preferenceRepository.save(preference);
         log.info("Preferencias actualizadas para usuario: {}", userId);
@@ -54,6 +57,9 @@ public class PreferenceService {
                 .keyboardNavigation(true)
                 .readerMode(false)
                 .notificationsEnabled(true)
+                .voiceCommandsEnabled(true)
+                .ttsEnabled(true)
+                .voiceLanguage("es-ES")
                 .notificationPreferences(new HashMap<>())
                 .trainingPreferences(new HashMap<>())
                 .build();
@@ -76,10 +82,19 @@ public class PreferenceService {
                 .keyboardNavigation(preference.getKeyboardNavigation())
                 .readerMode(preference.getReaderMode())
                 .notificationsEnabled(preference.getNotificationsEnabled())
+                .voiceCommandsEnabled(Boolean.TRUE.equals(preference.getVoiceCommandsEnabled()))
+                .ttsEnabled(preference.getTtsEnabled() == null || preference.getTtsEnabled())
+                .voiceLanguage(preference.getVoiceLanguage() != null ? preference.getVoiceLanguage() : "es-ES")
                 .notificationPreferences(preference.getNotificationPreferences())
                 .trainingPreferences(preference.getTrainingPreferences())
                 .createdAt(preference.getCreatedAt())
                 .updatedAt(preference.getUpdatedAt())
                 .build();
+    }
+
+    private String normalizeVoiceLanguage(String language) {
+        if ("es".equalsIgnoreCase(language)) return "es-ES";
+        if ("en".equalsIgnoreCase(language)) return "en-US";
+        return language;
     }
 }

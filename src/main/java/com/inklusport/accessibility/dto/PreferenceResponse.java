@@ -18,6 +18,9 @@ public class PreferenceResponse {
     private Boolean keyboardNavigation;
     private Boolean readerMode;
     private Boolean notificationsEnabled;
+    private Boolean voiceCommandsEnabled;
+    private Boolean ttsEnabled;
+    private String voiceLanguage;
     private Map<String, Boolean> notificationPreferences;
     private Map<String, Object> trainingPreferences;
     private LocalDateTime createdAt;

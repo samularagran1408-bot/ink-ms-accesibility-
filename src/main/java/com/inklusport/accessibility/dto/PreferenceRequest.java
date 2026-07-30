@@ -21,4 +21,9 @@ public class PreferenceRequest {
     private Boolean keyboardNavigation;
     private Boolean readerMode;
     private Boolean notificationsEnabled;
+    private Boolean voiceCommandsEnabled;
+    private Boolean ttsEnabled;
+
+    @Pattern(regexp = "es-ES|en-US|es|en", message = "Idioma de voz inválido")
+    private String voiceLanguage;
 }

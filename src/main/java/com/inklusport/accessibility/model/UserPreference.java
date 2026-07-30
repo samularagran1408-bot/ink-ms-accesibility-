@@ -39,6 +39,13 @@ public class UserPreference {
     private Boolean readerMode;
     private Boolean notificationsEnabled;
 
+    /** Comandos por voz (Web Speech / STT). */
+    private Boolean voiceCommandsEnabled;
+    /** Feedback hablado (TTS) al ejecutar un comando. */
+    private Boolean ttsEnabled;
+    /** Idioma del reconocedor de voz (p. ej. es-ES, en-US). */
+    private String voiceLanguage;
+
     private Map<String, Boolean> notificationPreferences;
     private Map<String, Object> trainingPreferences;
 

@@ -10,7 +10,7 @@ server:
   port: 3004
 
 jwt:
-  secret: inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512
+  secret: ${JWT_SECRET:inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512}
   expiration: 86400000
 
 logging:
