@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,8 +21,14 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationEmailService notificationEmailService;
 
     public NotificationResponse createNotification(String userId, NotificationRequest request) {
+        Map<String, Boolean> deliveryStatus = new HashMap<>();
+        deliveryStatus.put("push", true);
+        deliveryStatus.put("tts", true);
+        deliveryStatus.put("email", false);
+
         Notification notification = Notification.builder()
                 .userId(userId)
                 .type(request.getType())
@@ -30,15 +37,24 @@ public class NotificationService {
                 .eventId(request.getEventId())
                 .priority(request.getPriority() != null ? request.getPriority() : "medium")
                 .adaptations(new HashMap<>())
-                .deliveryMethods(List.of("push", "email"))
+                .deliveryMethods(List.of("push", "email", "tts"))
                 .read(false)
-                .deliveryStatus(new HashMap<>())
+                .deliveryStatus(deliveryStatus)
                 .scheduledFor(request.getScheduledFor() != null ? request.getScheduledFor() : LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusDays(7))
                 .build();
 
         notification = notificationRepository.save(notification);
         log.info("Notificación creada para usuario: {}", userId);
+
+        // Email: usa el userId si ya es correo (JWT principal = email).
+        String emailTarget = resolveEmailTarget(userId, request.getUserId());
+        if (emailTarget != null) {
+            notificationEmailService.sendNotificationEmail(emailTarget, request.getTitle(), request.getBody());
+            deliveryStatus.put("email", true);
+            notification.setDeliveryStatus(deliveryStatus);
+            notification = notificationRepository.save(notification);
+        }
 
         return convertToResponse(notification);
     }
@@ -82,6 +98,16 @@ public class NotificationService {
 
     public long getUnreadCount(String userId) {
         return notificationRepository.countByUserIdAndReadFalse(userId);
+    }
+
+    private String resolveEmailTarget(String headerUserId, String requestUserId) {
+        if (headerUserId != null && headerUserId.contains("@")) {
+            return headerUserId.trim();
+        }
+        if (requestUserId != null && requestUserId.contains("@")) {
+            return requestUserId.trim();
+        }
+        return null;
     }
 
     private NotificationResponse convertToResponse(Notification notification) {

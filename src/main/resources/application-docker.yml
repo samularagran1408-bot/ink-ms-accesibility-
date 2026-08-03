@@ -9,12 +9,28 @@ spring:
       uri: ${MONGODB_URI}
       database: ${MONGODB_DB:accessibility_notifications_db}
       auto-index-creation: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: ${MAIL_PROTOCOL:smtps}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
   
   main:
     allow-bean-definition-overriding: true
 
 server:
   port: 3004
+
+mail:
+  enabled: ${MAIL_ENABLED:false}
 
 jwt:
   # Sin valor por defecto a propósito: si falta la variable el servicio no arranca,
