@@ -47,7 +47,9 @@ public class NotificationService {
         notification = notificationRepository.save(notification);
         log.info("Notificación creada para usuario: {}", userId);
 
-        // Email: usa el userId si ya es correo (JWT principal = email).
+        /**
+         * Email: usa el userId si ya es correo (JWT principal = email).
+         */
         String emailTarget = resolveEmailTarget(userId, request.getUserId());
         if (emailTarget != null) {
             notificationEmailService.sendNotificationEmail(emailTarget, request.getTitle(), request.getBody());
