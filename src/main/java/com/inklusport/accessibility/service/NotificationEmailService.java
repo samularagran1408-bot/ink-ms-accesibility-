@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,15 +21,18 @@ public class NotificationEmailService {
     @Value("${mail.enabled:false}")
     private boolean mailEnabled;
 
-    @Async
-    public void sendNotificationEmail(String to, String title, String body) {
+    /**
+     * Envía email de cualquier tipo de notificación. Retorna true solo si SMTP aceptó el mensaje.
+     * Nota: no usa @Async para poder reportar el resultado real al caller.
+     */
+    public boolean sendNotificationEmail(String to, String title, String body) {
         if (!mailEnabled) {
             log.debug("Email deshabilitado (mail.enabled=false). No se envía a {}", to);
-            return;
+            return false;
         }
         if (to == null || !to.contains("@") || fromEmail == null || fromEmail.isBlank()) {
             log.warn("No se puede enviar email de notificación: destinatario/remitente inválido");
-            return;
+            return false;
         }
 
         try {
@@ -42,8 +44,10 @@ public class NotificationEmailService {
             helper.setText(buildHtml(title, body), true);
             mailSender.send(message);
             log.info("Email de notificación enviado a {}", to);
+            return true;
         } catch (Exception e) {
             log.error("Error enviando email de notificación a {}: {}", to, e.getMessage());
+            return false;
         }
     }
 

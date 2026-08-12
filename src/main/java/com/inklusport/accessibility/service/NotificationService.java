@@ -22,6 +22,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationEmailService notificationEmailService;
+    private final UserEmailLookupService userEmailLookupService;
 
     public NotificationResponse createNotification(String userId, NotificationRequest request) {
         Map<String, Boolean> deliveryStatus = new HashMap<>();
@@ -29,8 +30,15 @@ public class NotificationService {
         deliveryStatus.put("tts", true);
         deliveryStatus.put("email", false);
 
+        /**
+         * Canonical key = email cuando se puede resolver (coincide con JWT del front).
+         * Así in-app y Gmail llegan al mismo destinatario, sin filtrar por rol/tipo.
+         */
+        String emailTarget = resolveEmailTarget(userId, request != null ? request.getUserId() : null);
+        String storageUserId = emailTarget != null ? emailTarget : (userId != null ? userId.trim() : null);
+
         Notification notification = Notification.builder()
-                .userId(userId)
+                .userId(storageUserId)
                 .type(request.getType())
                 .title(request.getTitle())
                 .body(request.getBody())
@@ -45,17 +53,30 @@ public class NotificationService {
                 .build();
 
         notification = notificationRepository.save(notification);
-        log.info("Notificación creada para usuario: {}", userId);
+        log.info("Notificación creada para usuario: {} (tipo={})", storageUserId, request.getType());
 
-        /**
-         * Email: usa el userId si ya es correo (JWT principal = email).
-         */
-        String emailTarget = resolveEmailTarget(userId, request.getUserId());
         if (emailTarget != null) {
-            notificationEmailService.sendNotificationEmail(emailTarget, request.getTitle(), request.getBody());
-            deliveryStatus.put("email", true);
+            boolean sent = notificationEmailService.sendNotificationEmail(
+                    emailTarget,
+                    request.getTitle(),
+                    request.getBody()
+            );
+            deliveryStatus.put("email", sent);
             notification.setDeliveryStatus(deliveryStatus);
             notification = notificationRepository.save(notification);
+            if (!sent) {
+                log.warn(
+                        "Notificación {} guardada, pero email no enviado a {} (revisa MAIL_ENABLED/credenciales)",
+                        request.getType(),
+                        emailTarget
+                );
+            }
+        } else {
+            log.warn(
+                    "Sin email resoluble para userId={}, request.userId={}; solo queda in-app si el key coincide",
+                    userId,
+                    request.getUserId()
+            );
         }
 
         return convertToResponse(notification);
@@ -103,13 +124,11 @@ public class NotificationService {
     }
 
     private String resolveEmailTarget(String headerUserId, String requestUserId) {
-        if (headerUserId != null && headerUserId.contains("@")) {
-            return headerUserId.trim();
+        String fromHeader = userEmailLookupService.resolveEmail(headerUserId);
+        if (fromHeader != null) {
+            return fromHeader;
         }
-        if (requestUserId != null && requestUserId.contains("@")) {
-            return requestUserId.trim();
-        }
-        return null;
+        return userEmailLookupService.resolveEmail(requestUserId);
     }
 
     private NotificationResponse convertToResponse(Notification notification) {

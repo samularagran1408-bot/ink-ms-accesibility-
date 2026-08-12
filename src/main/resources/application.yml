@@ -29,6 +29,10 @@ server:
 mail:
   enabled: ${MAIL_ENABLED:false}
 
+users:
+  service:
+    url: ${USERS_SERVICE_URL:http://localhost:3002}
+
 jwt:
   secret: ${JWT_SECRET:inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512}
   expiration: ${JWT_EXPIRATION:86400000}

@@ -32,6 +32,10 @@ server:
 mail:
   enabled: ${MAIL_ENABLED:false}
 
+users:
+  service:
+    url: ${USERS_SERVICE_URL:http://users-service:3002}
+
 jwt:
   # Sin valor por defecto a propósito: si falta la variable el servicio no arranca,
   # en lugar de validar tokens con un secreto conocido.
