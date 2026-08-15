@@ -26,4 +26,7 @@ public class PreferenceRequest {
 
     @Pattern(regexp = "es-ES|en-US|es|en", message = "Idioma de voz inválido")
     private String voiceLanguage;
+
+    @Pattern(regexp = "qr|form", message = "El check-in debe ser 'qr' o 'form'")
+    private String attendanceCheckInMethod;
 }

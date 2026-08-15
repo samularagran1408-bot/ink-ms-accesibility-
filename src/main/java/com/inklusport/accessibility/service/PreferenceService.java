@@ -39,6 +39,9 @@ public class PreferenceService {
         if (request.getVoiceCommandsEnabled() != null) preference.setVoiceCommandsEnabled(request.getVoiceCommandsEnabled());
         if (request.getTtsEnabled() != null) preference.setTtsEnabled(request.getTtsEnabled());
         if (request.getVoiceLanguage() != null) preference.setVoiceLanguage(normalizeVoiceLanguage(request.getVoiceLanguage()));
+        if (request.getAttendanceCheckInMethod() != null) {
+            preference.setAttendanceCheckInMethod(normalizeAttendanceCheckInMethod(request.getAttendanceCheckInMethod()));
+        }
 
         preference = preferenceRepository.save(preference);
         log.info("Preferencias actualizadas para usuario: {}", userId);
@@ -60,6 +63,7 @@ public class PreferenceService {
                 .voiceCommandsEnabled(true)
                 .ttsEnabled(true)
                 .voiceLanguage("es-ES")
+                .attendanceCheckInMethod("qr")
                 .notificationPreferences(new HashMap<>())
                 .trainingPreferences(new HashMap<>())
                 .build();
@@ -85,6 +89,7 @@ public class PreferenceService {
                 .voiceCommandsEnabled(Boolean.TRUE.equals(preference.getVoiceCommandsEnabled()))
                 .ttsEnabled(preference.getTtsEnabled() == null || preference.getTtsEnabled())
                 .voiceLanguage(preference.getVoiceLanguage() != null ? preference.getVoiceLanguage() : "es-ES")
+                .attendanceCheckInMethod(normalizeAttendanceCheckInMethod(preference.getAttendanceCheckInMethod()))
                 .notificationPreferences(preference.getNotificationPreferences())
                 .trainingPreferences(preference.getTrainingPreferences())
                 .createdAt(preference.getCreatedAt())
@@ -96,5 +101,12 @@ public class PreferenceService {
         if ("es".equalsIgnoreCase(language)) return "es-ES";
         if ("en".equalsIgnoreCase(language)) return "en-US";
         return language;
+    }
+
+    private String normalizeAttendanceCheckInMethod(String value) {
+        if ("form".equalsIgnoreCase(value)) {
+            return "form";
+        }
+        return "qr";
     }
 }

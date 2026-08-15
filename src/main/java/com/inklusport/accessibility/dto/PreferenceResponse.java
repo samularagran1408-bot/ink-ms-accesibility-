@@ -21,6 +21,7 @@ public class PreferenceResponse {
     private Boolean voiceCommandsEnabled;
     private Boolean ttsEnabled;
     private String voiceLanguage;
+    private String attendanceCheckInMethod;
     private Map<String, Boolean> notificationPreferences;
     private Map<String, Object> trainingPreferences;
     private LocalDateTime createdAt;

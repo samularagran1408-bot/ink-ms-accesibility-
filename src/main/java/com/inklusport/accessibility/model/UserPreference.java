@@ -46,6 +46,9 @@ public class UserPreference {
     /** Idioma del reconocedor de voz (p. ej. es-ES, en-US). */
     private String voiceLanguage;
 
+    /** Cómo confirma asistencia el atleta: {@code qr} (escaneo instantáneo) o {@code form} (encuesta). */
+    private String attendanceCheckInMethod;
+
     private Map<String, Boolean> notificationPreferences;
     private Map<String, Object> trainingPreferences;
 
