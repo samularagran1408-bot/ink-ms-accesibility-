@@ -22,7 +22,8 @@ public class AssistiveCommandCatalog {
                     .route("/home")
                     .phrases(List.of(
                             "ir a inicio", "ir al inicio", "abrir inicio", "abrir home",
-                            "ir a home", "página principal", "pantalla principal", "inicio"
+                            "ir a home", "página principal", "pantalla principal", "inicio",
+                            "go home", "open home", "main page"
                     ))
                     .build(),
             CommandDefinition.builder()
@@ -90,7 +91,8 @@ public class AssistiveCommandCatalog {
                     .route(null)
                     .phrases(List.of(
                             "alto contraste", "activar contraste", "desactivar contraste",
-                            "contraste alto", "modo contraste"
+                            "contraste alto", "modo contraste",
+                            "high contrast", "toggle contrast", "contrast mode"
                     ))
                     .build(),
             CommandDefinition.builder()
@@ -100,7 +102,8 @@ public class AssistiveCommandCatalog {
                     .route(null)
                     .phrases(List.of(
                             "aumentar texto", "texto más grande", "letra más grande",
-                            "aumentar fuente", "agrandar texto"
+                            "aumentar fuente", "agrandar texto",
+                            "increase font", "bigger text", "larger font"
                     ))
                     .build(),
             CommandDefinition.builder()
@@ -110,7 +113,8 @@ public class AssistiveCommandCatalog {
                     .route(null)
                     .phrases(List.of(
                             "reducir texto", "texto más pequeño", "letra más pequeña",
-                            "disminuir fuente", "achicar texto"
+                            "disminuir fuente", "achicar texto",
+                            "decrease font", "smaller text", "smaller font"
                     ))
                     .build(),
             CommandDefinition.builder()

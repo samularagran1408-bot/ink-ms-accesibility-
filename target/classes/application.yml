@@ -6,12 +6,32 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/accessibility_notifications_db
       auto-index-creation: true
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: ${MAIL_PROTOCOL:smtps}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
   
   main:
     allow-bean-definition-overriding: true
 
 server:
   port: 3004
+
+mail:
+  enabled: ${MAIL_ENABLED:false}
+
+users:
+  service:
+    url: ${USERS_SERVICE_URL:http://localhost:3002}
 
 jwt:
   secret: ${JWT_SECRET:inklusport2024superSecretKeyForJWTtokenGenerationWith512bitsAlgorithmHS512}

@@ -6,10 +6,11 @@ C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklu
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\repository\CommandLogRepository.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\securtity\JwtTokenProvider.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\exception\GlobalExceptionHandler.java
-C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\controller\SignLanguageController.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\model\UserPreference.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\service\PreferenceService.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\repository\NotificationPreferenceRepository.java
+C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\service\NotificationEmailService.java
+C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\service\UserEmailLookupService.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\repository\NotificationLogRepository.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\repository\UserPreferenceRepository.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\config\SecurityConfig.java
@@ -27,6 +28,7 @@ C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklu
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\CommandDefinition.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\PreferenceResponse.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\model\CommandLog.java
+C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\config\RestClientConfig.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\config\JwtAuthenticationFilter.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\AccessibilityApplication.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\InterpretResponse.java

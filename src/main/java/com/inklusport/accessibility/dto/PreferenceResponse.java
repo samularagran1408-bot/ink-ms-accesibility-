@@ -11,6 +11,7 @@ public class PreferenceResponse {
     private String userId;
     private String disabilityType;
     private String language;
+    private Boolean followSystemLanguage;
     private Boolean highContrast;
     private String fontSize;
     private Boolean screenReader;

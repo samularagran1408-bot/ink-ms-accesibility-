@@ -3,16 +3,20 @@ package com.inklusport.accessibility.service;
 import com.inklusport.accessibility.dto.NotificationRequest;
 import com.inklusport.accessibility.dto.NotificationResponse;
 import com.inklusport.accessibility.model.Notification;
+import com.inklusport.accessibility.model.UserPreference;
 import com.inklusport.accessibility.repository.NotificationRepository;
+import com.inklusport.accessibility.repository.UserPreferenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,19 +27,42 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationEmailService notificationEmailService;
     private final UserEmailLookupService userEmailLookupService;
+    private final UserPreferenceRepository preferenceRepository;
 
     public NotificationResponse createNotification(String userId, NotificationRequest request) {
-        Map<String, Boolean> deliveryStatus = new HashMap<>();
-        deliveryStatus.put("push", true);
-        deliveryStatus.put("tts", true);
-        deliveryStatus.put("email", false);
-
         /**
          * Canonical key = email cuando se puede resolver (coincide con JWT del front).
          * Así in-app y Gmail llegan al mismo destinatario, sin filtrar por rol/tipo.
          */
         String emailTarget = resolveEmailTarget(userId, request != null ? request.getUserId() : null);
         String storageUserId = emailTarget != null ? emailTarget : (userId != null ? userId.trim() : null);
+
+        AlertChannels channels = resolveAlertChannels(storageUserId, userId);
+
+        Map<String, Boolean> deliveryStatus = new HashMap<>();
+        deliveryStatus.put("push", channels.visual);
+        deliveryStatus.put("visual", channels.visual);
+        deliveryStatus.put("tts", channels.voice);
+        deliveryStatus.put("voice", channels.voice);
+        deliveryStatus.put("email", false);
+
+        List<String> deliveryMethods = new ArrayList<>();
+        if (channels.visual) {
+            deliveryMethods.add("push");
+            deliveryMethods.add("visual");
+        }
+        if (channels.voice) {
+            deliveryMethods.add("tts");
+            deliveryMethods.add("voice");
+        }
+        deliveryMethods.add("email");
+
+        Map<String, Object> adaptations = new HashMap<>();
+        adaptations.put("visual", channels.visual);
+        adaptations.put("voice", channels.voice);
+        adaptations.put("screenReader", channels.screenReader);
+        adaptations.put("highContrast", channels.highContrast);
+        adaptations.put("language", channels.language);
 
         Notification notification = Notification.builder()
                 .userId(storageUserId)
@@ -44,8 +71,8 @@ public class NotificationService {
                 .body(request.getBody())
                 .eventId(request.getEventId())
                 .priority(request.getPriority() != null ? request.getPriority() : "medium")
-                .adaptations(new HashMap<>())
-                .deliveryMethods(List.of("push", "email", "tts"))
+                .adaptations(adaptations)
+                .deliveryMethods(deliveryMethods)
                 .read(false)
                 .deliveryStatus(deliveryStatus)
                 .scheduledFor(request.getScheduledFor() != null ? request.getScheduledFor() : LocalDateTime.now())
@@ -130,6 +157,40 @@ public class NotificationService {
         }
         return userEmailLookupService.resolveEmail(requestUserId);
     }
+
+    private AlertChannels resolveAlertChannels(String... candidateUserIds) {
+        UserPreference prefs = findPreference(candidateUserIds).orElse(null);
+        boolean visual = prefs == null || prefs.getNotificationsEnabled() == null || prefs.getNotificationsEnabled();
+        boolean voice = visual && (prefs == null || prefs.getTtsEnabled() == null || prefs.getTtsEnabled());
+        boolean screenReader = prefs != null && Boolean.TRUE.equals(prefs.getScreenReader());
+        boolean highContrast = prefs != null && Boolean.TRUE.equals(prefs.getHighContrast());
+        String language = prefs != null && prefs.getLanguage() != null ? prefs.getLanguage() : "es";
+        return new AlertChannels(visual, voice, screenReader, highContrast, language);
+    }
+
+    private Optional<UserPreference> findPreference(String... candidateUserIds) {
+        if (candidateUserIds == null) {
+            return Optional.empty();
+        }
+        for (String candidate : candidateUserIds) {
+            if (candidate == null || candidate.isBlank()) {
+                continue;
+            }
+            Optional<UserPreference> found = preferenceRepository.findByUserId(candidate.trim());
+            if (found.isPresent()) {
+                return found;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private record AlertChannels(
+            boolean visual,
+            boolean voice,
+            boolean screenReader,
+            boolean highContrast,
+            String language
+    ) {}
 
     private NotificationResponse convertToResponse(Notification notification) {
         return NotificationResponse.builder()

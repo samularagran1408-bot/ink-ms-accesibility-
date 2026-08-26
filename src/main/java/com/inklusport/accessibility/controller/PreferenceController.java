@@ -18,8 +18,10 @@ public class PreferenceController {
     private final PreferenceService preferenceService;
 
     @GetMapping
-    public ResponseEntity<PreferenceResponse> getPreferences(@AuthenticationPrincipal String userId) {
-        return ResponseEntity.ok(preferenceService.getPreferences(userId));
+    public ResponseEntity<PreferenceResponse> getPreferences(
+            @AuthenticationPrincipal String userId,
+            @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage) {
+        return ResponseEntity.ok(preferenceService.getPreferences(userId, acceptLanguage));
     }
 
     @PutMapping

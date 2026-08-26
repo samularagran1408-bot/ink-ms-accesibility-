@@ -11,6 +11,8 @@ public class PreferenceRequest {
     @Pattern(regexp = "es|en", message = "Idioma debe ser 'es' o 'en'")
     private String language;
 
+    private Boolean followSystemLanguage;
+
     private Boolean highContrast;
 
     @Pattern(regexp = "small|medium|large|xlarge", message = "Tamaño de fuente inválido")

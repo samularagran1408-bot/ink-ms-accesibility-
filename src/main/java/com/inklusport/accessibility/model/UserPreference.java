@@ -31,6 +31,8 @@ public class UserPreference {
 
     private String disabilityType;
     private String language;
+    /** Si es true, el cliente debe seguir el idioma del sistema operativo. */
+    private Boolean followSystemLanguage;
     private Boolean highContrast;
     private String fontSize;
     private Boolean screenReader;
