@@ -7,6 +7,7 @@ import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -20,7 +21,10 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "user_read_idx", def = "{'userId': 1, 'read': 1}")
+@CompoundIndexes({
+    @CompoundIndex(name = "user_read_idx", def = "{'user_id': 1, 'read': 1}"),
+    @CompoundIndex(name = "user_created_idx", def = "{'user_id': 1, 'created_at': -1}")
+})
 public class Notification {
 
     @Id
@@ -62,5 +66,6 @@ public class Notification {
     private LocalDateTime scheduledFor;
 
     @Field("expires_at")
+    @Indexed(name = "expires_at_ttl", expireAfterSeconds = 0)
     private LocalDateTime expiresAt;
 }

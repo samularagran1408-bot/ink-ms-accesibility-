@@ -24,9 +24,9 @@ public class PreferenceService {
     }
 
     public PreferenceResponse getPreferences(String userId, String acceptLanguage) {
-        UserPreference preference = preferenceRepository.findByUserId(userId)
-                .orElseGet(() -> createDefaultPreferences(userId, acceptLanguage));
-        return convertToResponse(preference);
+        return preferenceRepository.findByUserId(userId)
+                .map(this::convertToResponse)
+                .orElseGet(() -> convertToResponse(buildDefaultPreferences(userId, acceptLanguage)));
     }
 
     public PreferenceResponse updatePreferences(String userId, PreferenceRequest request) {
@@ -70,6 +70,10 @@ public class PreferenceService {
     }
 
     UserPreference createDefaultPreferences(String userId, String acceptLanguage) {
+        return preferenceRepository.save(buildDefaultPreferences(userId, acceptLanguage));
+    }
+
+    private UserPreference buildDefaultPreferences(String userId, String acceptLanguage) {
         String language = normalizeUiLanguage(languageFromAccept(acceptLanguage));
         UserPreference preference = UserPreference.builder()
                 .userId(userId)
@@ -90,7 +94,7 @@ public class PreferenceService {
                 .trainingPreferences(new HashMap<>())
                 .build();
 
-        return preferenceRepository.save(preference);
+        return preference;
     }
 
     private PreferenceResponse convertToResponse(UserPreference preference) {

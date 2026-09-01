@@ -2,6 +2,7 @@ C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklu
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\model\Notification.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\controller\VoiceController.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\NotificationRequest.java
+C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\service\NotificationRetentionService.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\CommandLogRequest.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\repository\CommandLogRepository.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\securtity\JwtTokenProvider.java
@@ -24,6 +25,7 @@ C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklu
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\repository\NotificationRepository.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\model\NotificationPreference.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\service\NotificationService.java
+C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\config\MongoIndexInitializer.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\ErrorResponse.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\CommandDefinition.java
 C:\Users\Samu\Documents\Repos Aparte\ink-ms-accesibility\src\main\java\com\inklusport\accessibility\dto\PreferenceResponse.java

@@ -8,6 +8,7 @@ import com.inklusport.accessibility.repository.NotificationRepository;
 import com.inklusport.accessibility.repository.UserPreferenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
+
+    private static final int MAX_NOTIFICATIONS = 50;
+    private static final int MAX_UNREAD = 20;
+    static final int HOURS_IF_UNREAD = 4;
+    static final int HOURS_AFTER_READ = 2;
 
     private final NotificationRepository notificationRepository;
     private final NotificationEmailService notificationEmailService;
@@ -75,8 +81,9 @@ public class NotificationService {
                 .deliveryMethods(deliveryMethods)
                 .read(false)
                 .deliveryStatus(deliveryStatus)
+                .createdAt(LocalDateTime.now())
                 .scheduledFor(request.getScheduledFor() != null ? request.getScheduledFor() : LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusDays(7))
+                .expiresAt(LocalDateTime.now().plusHours(HOURS_IF_UNREAD))
                 .build();
 
         notification = notificationRepository.save(notification);
@@ -110,13 +117,13 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getUserNotifications(String userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_NOTIFICATIONS)).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<NotificationResponse> getUnreadNotifications(String userId) {
-        return notificationRepository.findByUserIdAndReadFalse(userId).stream()
+        return notificationRepository.findByUserIdAndReadFalseOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_UNREAD)).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
@@ -130,17 +137,22 @@ public class NotificationService {
             throw new RuntimeException("No autorizado");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         notification.setRead(true);
-        notification.setReadAt(LocalDateTime.now());
+        notification.setReadAt(now);
+        notification.setExpiresAt(now.plusHours(HOURS_AFTER_READ));
         notificationRepository.save(notification);
         log.info("Notificación marcada como leída: {}", notificationId);
     }
 
     public void markAllAsRead(String userId) {
         List<Notification> notifications = notificationRepository.findByUserIdAndReadFalse(userId);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expires = now.plusHours(HOURS_AFTER_READ);
         notifications.forEach(n -> {
             n.setRead(true);
-            n.setReadAt(LocalDateTime.now());
+            n.setReadAt(now);
+            n.setExpiresAt(expires);
         });
         notificationRepository.saveAll(notifications);
         log.info("Todas las notificaciones marcadas como leídas para usuario: {}", userId);

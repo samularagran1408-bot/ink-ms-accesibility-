@@ -10,6 +10,7 @@ com\inklusport\accessibility\service\PreferenceService.class
 com\inklusport\accessibility\model\NotificationLog.class
 com\inklusport\accessibility\dto\ErrorResponse.class
 com\inklusport\accessibility\model\CommandLog$CommandLogBuilder.class
+com\inklusport\accessibility\service\NotificationRetentionService.class
 com\inklusport\accessibility\model\NotificationPreference$NotificationPreferenceBuilder.class
 com\inklusport\accessibility\dto\CommandLogRequest.class
 com\inklusport\accessibility\service\AssistiveCommandCatalog$Match.class
@@ -36,6 +37,7 @@ com\inklusport\accessibility\model\Notification$NotificationBuilder.class
 com\inklusport\accessibility\dto\PreferenceRequest.class
 com\inklusport\accessibility\dto\InterpretResponse.class
 com\inklusport\accessibility\exception\GlobalExceptionHandler.class
+com\inklusport\accessibility\config\MongoIndexInitializer.class
 com\inklusport\accessibility\dto\PreferenceResponse.class
 com\inklusport\accessibility\service\NotificationEmailService.class
 com\inklusport\accessibility\model\Notification.class

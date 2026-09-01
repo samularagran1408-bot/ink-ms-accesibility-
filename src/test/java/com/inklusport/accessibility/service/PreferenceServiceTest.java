@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -169,5 +170,16 @@ class PreferenceServiceTest {
         assertThat(PreferenceService.languageFromAccept("en-GB,es;q=0.8")).isEqualTo("en");
         assertThat(PreferenceService.languageFromAccept("es-CO")).isEqualTo("es");
         assertThat(PreferenceService.languageFromAccept(null)).isEqualTo("es");
+    }
+
+    @Test
+    void getPreferences_noPersisteDefaultsEnLectura() {
+        when(preferenceRepository.findByUserId("user-1")).thenReturn(Optional.empty());
+
+        PreferenceResponse response = preferenceService.getPreferences("user-1", "es");
+
+        assertThat(response.getLanguage()).isEqualTo("es");
+        assertThat(response.getFollowSystemLanguage()).isTrue();
+        verify(preferenceRepository, never()).save(any());
     }
 }
