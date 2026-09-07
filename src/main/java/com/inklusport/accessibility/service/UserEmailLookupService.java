@@ -21,6 +21,7 @@ public class UserEmailLookupService {
     @Value("${users.service.url:http://localhost:3002}")
     private String usersServiceUrl;
 
+    /** Resuelve un UUID o email crudo al email real del usuario. */
     public String resolveEmail(String userIdOrEmail) {
         if (userIdOrEmail == null || userIdOrEmail.isBlank()) {
             return null;

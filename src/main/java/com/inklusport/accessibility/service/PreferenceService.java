@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Gestiona las preferencias de accesibilidad del usuario.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,16 +22,19 @@ public class PreferenceService {
 
     private final UserPreferenceRepository preferenceRepository;
 
+    /** Obtiene las preferencias del usuario con idioma por defecto. */
     public PreferenceResponse getPreferences(String userId) {
         return getPreferences(userId, null);
     }
 
+    /** Obtiene las preferencias o valores por defecto según Accept-Language. */
     public PreferenceResponse getPreferences(String userId, String acceptLanguage) {
         return preferenceRepository.findByUserId(userId)
                 .map(this::convertToResponse)
                 .orElseGet(() -> convertToResponse(buildDefaultPreferences(userId, acceptLanguage)));
     }
 
+    /** Actualiza las preferencias enviadas por el usuario. */
     public PreferenceResponse updatePreferences(String userId, PreferenceRequest request) {
         UserPreference preference = preferenceRepository.findByUserId(userId)
                 .orElseGet(() -> createDefaultPreferences(userId, request.getLanguage()));
@@ -69,10 +75,12 @@ public class PreferenceService {
         return convertToResponse(preference);
     }
 
+    /** Crea y guarda preferencias por defecto del usuario. */
     UserPreference createDefaultPreferences(String userId, String acceptLanguage) {
         return preferenceRepository.save(buildDefaultPreferences(userId, acceptLanguage));
     }
 
+    /** Construye preferencias por defecto sin persistirlas. */
     private UserPreference buildDefaultPreferences(String userId, String acceptLanguage) {
         String language = normalizeUiLanguage(languageFromAccept(acceptLanguage));
         UserPreference preference = UserPreference.builder()
@@ -97,6 +105,7 @@ public class PreferenceService {
         return preference;
     }
 
+    /** Convierte el modelo de preferencias a DTO de respuesta. */
     private PreferenceResponse convertToResponse(UserPreference preference) {
         Map<String, Boolean> channels = preference.getNotificationPreferences() != null
                 ? preference.getNotificationPreferences()
@@ -124,6 +133,7 @@ public class PreferenceService {
                 .build();
     }
 
+    /** Sincroniza los canales de alerta con las flags del usuario. */
     private void syncAlertChannels(UserPreference preference) {
         Map<String, Boolean> channels = preference.getNotificationPreferences() != null
                 ? new HashMap<>(preference.getNotificationPreferences())
@@ -138,6 +148,7 @@ public class PreferenceService {
         preference.setNotificationPreferences(channels);
     }
 
+    /** Devuelve el mapa inicial de canales de alerta. */
     static Map<String, Boolean> defaultAlertChannels() {
         Map<String, Boolean> channels = new HashMap<>();
         channels.put("email", true);
@@ -148,6 +159,7 @@ public class PreferenceService {
         return channels;
     }
 
+    /** Extrae el idioma de UI desde Accept-Language. */
     static String languageFromAccept(String acceptLanguage) {
         if (acceptLanguage == null || acceptLanguage.isBlank()) {
             return "es";
@@ -159,6 +171,7 @@ public class PreferenceService {
         return "es";
     }
 
+    /** Normaliza el idioma de interfaz a es o en. */
     static String normalizeUiLanguage(String language) {
         if (language == null || language.isBlank()) {
             return "es";
@@ -166,12 +179,14 @@ public class PreferenceService {
         return language.trim().toLowerCase(Locale.ROOT).startsWith("en") ? "en" : "es";
     }
 
+    /** Normaliza el código de idioma de voz. */
     private String normalizeVoiceLanguage(String language) {
         if ("es".equalsIgnoreCase(language)) return "es-ES";
         if ("en".equalsIgnoreCase(language)) return "en-US";
         return language;
     }
 
+    /** Normaliza el método de check-in a qr o form. */
     private String normalizeAttendanceCheckInMethod(String value) {
         if ("form".equalsIgnoreCase(value)) {
             return "form";

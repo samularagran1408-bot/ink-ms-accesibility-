@@ -25,6 +25,7 @@ public class NotificationRetentionService {
 
     private final MongoTemplate mongoTemplate;
 
+    /** Elimina notificaciones y logs de comandos vencidos. */
     @Scheduled(initialDelay = 15_000, fixedDelay = 900_000)
     public void purgeExpired() {
         LocalDateTime now = LocalDateTime.now();

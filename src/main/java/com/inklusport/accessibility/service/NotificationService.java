@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Crea, consulta y marca notificaciones in-app del usuario.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,6 +40,7 @@ public class NotificationService {
     private final UserPreferenceRepository preferenceRepository;
     private final NotificationSseService notificationSseService;
 
+    /** Crea la notificación, la empuja por SSE y envía el email si aplica. */
     public NotificationResponse createNotification(String userId, NotificationRequest request) {
         /**
          * Canonical key = email cuando se puede resolver (coincide con JWT del front).
@@ -124,22 +128,26 @@ public class NotificationService {
         return convertToResponse(notification);
     }
 
+    /** Suscribe al usuario al canal SSE de notificaciones. */
     public SseEmitter subscribe(String userId) {
         return notificationSseService.subscribe(userId);
     }
 
+    /** Lista las notificaciones recientes del usuario. */
     public List<NotificationResponse> getUserNotifications(String userId) {
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_NOTIFICATIONS)).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
+    /** Lista solo las notificaciones no leídas del usuario. */
     public List<NotificationResponse> getUnreadNotifications(String userId) {
         return notificationRepository.findByUserIdAndReadFalseOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_UNREAD)).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
+    /** Marca una notificación como leída y ajusta su caducidad. */
     @Transactional
     public void markAsRead(String userId, String notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
@@ -157,6 +165,7 @@ public class NotificationService {
         log.info("Notificación marcada como leída: {}", notificationId);
     }
 
+    /** Marca todas las notificaciones pendientes como leídas. */
     public void markAllAsRead(String userId) {
         List<Notification> notifications = notificationRepository.findByUserIdAndReadFalse(userId);
         LocalDateTime now = LocalDateTime.now();
@@ -170,10 +179,12 @@ public class NotificationService {
         log.info("Todas las notificaciones marcadas como leídas para usuario: {}", userId);
     }
 
+    /** Cuenta las notificaciones no leídas del usuario. */
     public long getUnreadCount(String userId) {
         return notificationRepository.countByUserIdAndReadFalse(userId);
     }
 
+    /** Resuelve el email destino desde el header o el request. */
     private String resolveEmailTarget(String headerUserId, String requestUserId) {
         String fromHeader = userEmailLookupService.resolveEmail(headerUserId);
         if (fromHeader != null) {
@@ -182,6 +193,7 @@ public class NotificationService {
         return userEmailLookupService.resolveEmail(requestUserId);
     }
 
+    /** Determina los canales de alerta según las preferencias. */
     private AlertChannels resolveAlertChannels(String... candidateUserIds) {
         UserPreference prefs = findPreference(candidateUserIds).orElse(null);
         boolean visual = prefs == null || prefs.getNotificationsEnabled() == null || prefs.getNotificationsEnabled();
@@ -192,6 +204,7 @@ public class NotificationService {
         return new AlertChannels(visual, voice, screenReader, highContrast, language);
     }
 
+    /** Busca preferencias por el primer identificador que exista. */
     private Optional<UserPreference> findPreference(String... candidateUserIds) {
         if (candidateUserIds == null) {
             return Optional.empty();
@@ -208,6 +221,7 @@ public class NotificationService {
         return Optional.empty();
     }
 
+    /** Canales y adaptaciones de alerta para una notificación. */
     private record AlertChannels(
             boolean visual,
             boolean voice,
@@ -216,6 +230,7 @@ public class NotificationService {
             String language
     ) {}
 
+    /** Convierte el modelo de notificación a DTO de respuesta. */
     private NotificationResponse convertToResponse(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())

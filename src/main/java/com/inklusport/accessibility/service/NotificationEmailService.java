@@ -8,6 +8,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+/**
+ * Envía notificaciones por correo electrónico.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -51,6 +54,7 @@ public class NotificationEmailService {
         }
     }
 
+    /** Arma el HTML del correo de notificación. */
     private String buildHtml(String title, String body) {
         return """
             <!DOCTYPE html>
@@ -68,6 +72,7 @@ public class NotificationEmailService {
             """.formatted(escape(title), escape(body).replace("\n", "<br/>"));
     }
 
+    /** Escapa HTML para evitar inyección en el correo. */
     private String escape(String value) {
         if (value == null) {
             return "";

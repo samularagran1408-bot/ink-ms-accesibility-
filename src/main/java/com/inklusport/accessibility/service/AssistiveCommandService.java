@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Interpreta comandos de voz y registra su uso.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -21,10 +24,12 @@ public class AssistiveCommandService {
     private final AssistiveCommandCatalog catalog;
     private final CommandLogRepository commandLogRepository;
 
+    /** Devuelve el catálogo de comandos de voz disponibles. */
     public List<CommandDefinition> voiceCommands() {
         return catalog.all();
     }
 
+    /** Interpreta el texto de voz y opcionalmente lo registra. */
     public InterpretResponse interpretVoice(String userId, InterpretRequest request) {
         Optional<AssistiveCommandCatalog.Match> match = catalog.matchVoice(request.getInput());
         InterpretResponse response = match
@@ -42,6 +47,7 @@ public class AssistiveCommandService {
         return response;
     }
 
+    /** Guarda un registro explícito de comando ejecutado. */
     public void logCommand(String userId, CommandLogRequest request) {
         commandLogRepository.save(CommandLog.builder()
                 .userId(resolveUser(userId))
@@ -54,10 +60,12 @@ public class AssistiveCommandService {
                 .build());
     }
 
+    /** Lista los últimos comandos del usuario. */
     public List<CommandLog> recent(String userId) {
         return commandLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(resolveUser(userId));
     }
 
+    /** Construye la respuesta de un comando reconocido. */
     private InterpretResponse toResponse(CommandDefinition cmd, double confidence, String modality) {
         return InterpretResponse.builder()
                 .matched(true)
@@ -70,6 +78,7 @@ public class AssistiveCommandService {
                 .build();
     }
 
+    /** Persiste el intento de comando sin fallar al caller. */
     private void persist(String userId, String modality, String input, InterpretResponse response, boolean executed) {
         try {
             commandLogRepository.save(CommandLog.builder()
@@ -86,6 +95,7 @@ public class AssistiveCommandService {
         }
     }
 
+    /** Normaliza el identificador de usuario o usa anónimo. */
     private String resolveUser(String userId) {
         return (userId == null || userId.isBlank()) ? "anonymous" : userId;
     }

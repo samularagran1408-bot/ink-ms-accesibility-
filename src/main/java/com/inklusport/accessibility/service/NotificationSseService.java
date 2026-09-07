@@ -25,6 +25,7 @@ public class NotificationSseService {
 
     private final ConcurrentHashMap<String, CopyOnWriteArrayList<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
+    /** Abre una conexión SSE para recibir notificaciones. */
     public SseEmitter subscribe(String userId) {
         String key = key(userId);
         SseEmitter emitter = new SseEmitter(NEVER_TIMEOUT);
@@ -41,6 +42,7 @@ public class NotificationSseService {
         return emitter;
     }
 
+    /** Empuja la notificación a los clientes SSE conectados. */
     public void push(String userId, NotificationResponse notification) {
         String key = key(userId);
         if (key.isEmpty() || notification == null) {
@@ -64,6 +66,7 @@ public class NotificationSseService {
         dead.forEach(emitter -> remove(key, emitter));
     }
 
+    /** Envía un ping periódico para detectar conexiones muertas. */
     @Scheduled(fixedRate = 15_000)
     public void heartbeat() {
         for (Map.Entry<String, CopyOnWriteArrayList<SseEmitter>> entry : emitters.entrySet()) {
@@ -79,6 +82,7 @@ public class NotificationSseService {
         }
     }
 
+    /** Quita un emisor y cierra su conexión. */
     private void remove(String key, SseEmitter emitter) {
         CopyOnWriteArrayList<SseEmitter> live = emitters.get(key);
         if (live == null) {
@@ -95,6 +99,7 @@ public class NotificationSseService {
         }
     }
 
+    /** Normaliza la clave de usuario para el mapa SSE. */
     private static String key(String userId) {
         return userId == null ? "" : userId.trim().toLowerCase();
     }
