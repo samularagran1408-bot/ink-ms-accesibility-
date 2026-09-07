@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class NotificationService {
     private final NotificationEmailService notificationEmailService;
     private final UserEmailLookupService userEmailLookupService;
     private final UserPreferenceRepository preferenceRepository;
+    private final NotificationSseService notificationSseService;
 
     public NotificationResponse createNotification(String userId, NotificationRequest request) {
         /**
@@ -89,6 +91,12 @@ public class NotificationService {
         notification = notificationRepository.save(notification);
         log.info("Notificación creada para usuario: {} (tipo={})", storageUserId, request.getType());
 
+        NotificationResponse response = convertToResponse(notification);
+        notificationSseService.push(storageUserId, response);
+        if (userId != null && storageUserId != null && !storageUserId.equalsIgnoreCase(userId.trim())) {
+            notificationSseService.push(userId, response);
+        }
+
         if (emailTarget != null) {
             boolean sent = notificationEmailService.sendNotificationEmail(
                     emailTarget,
@@ -114,6 +122,10 @@ public class NotificationService {
         }
 
         return convertToResponse(notification);
+    }
+
+    public SseEmitter subscribe(String userId) {
+        return notificationSseService.subscribe(userId);
     }
 
     public List<NotificationResponse> getUserNotifications(String userId) {

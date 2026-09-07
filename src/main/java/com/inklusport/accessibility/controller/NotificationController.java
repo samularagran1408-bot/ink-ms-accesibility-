@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,19 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<SseEmitter> stream(@AuthenticationPrincipal String userId) {
+        if (userId == null || userId.isBlank() || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache")
+                .header("Connection", "keep-alive")
+                .header("X-Accel-Buffering", "no")
+                .contentType(MediaType.TEXT_EVENT_STREAM)
+                .body(notificationService.subscribe(userId));
+    }
 
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getMyNotifications(@AuthenticationPrincipal String userId) {
