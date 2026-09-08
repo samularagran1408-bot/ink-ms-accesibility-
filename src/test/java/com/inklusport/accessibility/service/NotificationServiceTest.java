@@ -33,8 +33,6 @@ class NotificationServiceTest {
     private UserEmailLookupService userEmailLookupService;
     @Mock
     private UserPreferenceRepository preferenceRepository;
-    @Mock
-    private NotificationSseService notificationSseService;
 
     private NotificationService notificationService;
 
@@ -44,8 +42,7 @@ class NotificationServiceTest {
                 notificationRepository,
                 notificationEmailService,
                 userEmailLookupService,
-                preferenceRepository,
-                notificationSseService
+                preferenceRepository
         );
         lenient().when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
             Notification notification = invocation.getArgument(0);
@@ -71,7 +68,6 @@ class NotificationServiceTest {
 
         assertThat(response.getDeliveryMethods()).contains("voice", "tts");
         assertThat(response.getAdaptations()).containsEntry("voice", true);
-        verify(notificationSseService).push(any(), any(NotificationResponse.class));
     }
 
     @Test

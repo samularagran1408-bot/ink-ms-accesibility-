@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,9 +37,8 @@ public class NotificationService {
     private final NotificationEmailService notificationEmailService;
     private final UserEmailLookupService userEmailLookupService;
     private final UserPreferenceRepository preferenceRepository;
-    private final NotificationSseService notificationSseService;
 
-    /** Crea la notificación, la empuja por SSE y envía el email si aplica. */
+    /** Crea la notificación y envía el email si aplica. */
     public NotificationResponse createNotification(String userId, NotificationRequest request) {
         /**
          * Canonical key = email cuando se puede resolver (coincide con JWT del front).
@@ -95,12 +93,6 @@ public class NotificationService {
         notification = notificationRepository.save(notification);
         log.info("Notificación creada para usuario: {} (tipo={})", storageUserId, request.getType());
 
-        NotificationResponse response = convertToResponse(notification);
-        notificationSseService.push(storageUserId, response);
-        if (userId != null && storageUserId != null && !storageUserId.equalsIgnoreCase(userId.trim())) {
-            notificationSseService.push(userId, response);
-        }
-
         if (emailTarget != null) {
             boolean sent = notificationEmailService.sendNotificationEmail(
                     emailTarget,
@@ -126,11 +118,6 @@ public class NotificationService {
         }
 
         return convertToResponse(notification);
-    }
-
-    /** Suscribe al usuario al canal SSE de notificaciones. */
-    public SseEmitter subscribe(String userId) {
-        return notificationSseService.subscribe(userId);
     }
 
     /** Lista las notificaciones recientes del usuario. */
