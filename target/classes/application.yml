@@ -23,6 +23,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+  mvc:
+    async:
+      request-timeout: -1
+
 server:
   port: 3004
 

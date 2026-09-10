@@ -22,5 +22,15 @@ class AssistiveCommandCatalogTest {
         assertThat(catalog.matchVoice("letra más pequeña")).isPresent()
                 .get().extracting(match -> match.command().getAction())
                 .isEqualTo("a11y.decrease_font");
+        assertThat(catalog.matchVoice("ir al inicio")).isPresent()
+                .get().extracting(match -> match.command().getAction())
+                .isEqualTo("navigate.home");
+    }
+
+    @Test
+    void ignoraFrasesQueNoSonComandos() {
+        assertThat(catalog.matchVoice("quiero pizza")).isEmpty();
+        assertThat(catalog.matchVoice("")).isEmpty();
+        assertThat(catalog.matchVoice(null)).isEmpty();
     }
 }
