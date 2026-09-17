@@ -51,6 +51,9 @@ public class UserPreference {
     /** Cómo confirma asistencia el atleta: {@code qr} (escaneo instantáneo) o {@code form} (encuesta). */
     private String attendanceCheckInMethod;
 
+    /** Preferencia de accesibilidad: recibir el reporte semanal del dashboard por correo. */
+    private Boolean weeklyReportEmailEnabled;
+
     private Map<String, Boolean> notificationPreferences;
     private Map<String, Object> trainingPreferences;
 

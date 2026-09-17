@@ -23,6 +23,7 @@ public class PreferenceResponse {
     private Boolean ttsEnabled;
     private String voiceLanguage;
     private String attendanceCheckInMethod;
+    private Boolean weeklyReportEmailEnabled;
     private Map<String, Boolean> notificationPreferences;
     private Map<String, Object> trainingPreferences;
     private LocalDateTime createdAt;

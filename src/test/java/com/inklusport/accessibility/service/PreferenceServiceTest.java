@@ -166,6 +166,36 @@ class PreferenceServiceTest {
     }
 
     @Test
+    void cp7Hu35_activaEnvioSemanalDeReportePorCorreo() {
+        when(preferenceRepository.findByUserId("user-1")).thenReturn(Optional.empty());
+
+        PreferenceRequest request = new PreferenceRequest();
+        request.setWeeklyReportEmailEnabled(true);
+
+        PreferenceResponse response = preferenceService.updatePreferences("user-1", request);
+
+        assertThat(response.getWeeklyReportEmailEnabled()).isTrue();
+    }
+
+    @Test
+    void cp8Hu35_cancelaProgramacionSemanalEnPreferencias() {
+        UserPreference stored = UserPreference.builder()
+                .userId("user-1")
+                .language("es")
+                .weeklyReportEmailEnabled(true)
+                .fontSize("medium")
+                .build();
+        when(preferenceRepository.findByUserId("user-1")).thenReturn(Optional.of(stored));
+
+        PreferenceRequest request = new PreferenceRequest();
+        request.setWeeklyReportEmailEnabled(false);
+
+        PreferenceResponse response = preferenceService.updatePreferences("user-1", request);
+
+        assertThat(response.getWeeklyReportEmailEnabled()).isFalse();
+    }
+
+    @Test
     void languageFromAccept_priorizaIngles() {
         assertThat(PreferenceService.languageFromAccept("en-GB,es;q=0.8")).isEqualTo("en");
         assertThat(PreferenceService.languageFromAccept("es-CO")).isEqualTo("es");

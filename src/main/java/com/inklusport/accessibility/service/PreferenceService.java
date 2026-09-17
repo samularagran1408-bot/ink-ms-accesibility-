@@ -66,6 +66,9 @@ public class PreferenceService {
         if (request.getAttendanceCheckInMethod() != null) {
             preference.setAttendanceCheckInMethod(normalizeAttendanceCheckInMethod(request.getAttendanceCheckInMethod()));
         }
+        if (request.getWeeklyReportEmailEnabled() != null) {
+            preference.setWeeklyReportEmailEnabled(request.getWeeklyReportEmailEnabled());
+        }
 
         syncAlertChannels(preference);
 
@@ -98,6 +101,7 @@ public class PreferenceService {
                 .ttsEnabled(true)
                 .voiceLanguage(language.startsWith("en") ? "en-US" : "es-ES")
                 .attendanceCheckInMethod("qr")
+                .weeklyReportEmailEnabled(false)
                 .notificationPreferences(defaultAlertChannels())
                 .trainingPreferences(new HashMap<>())
                 .build();
@@ -126,6 +130,7 @@ public class PreferenceService {
                 .ttsEnabled(preference.getTtsEnabled() == null || preference.getTtsEnabled())
                 .voiceLanguage(preference.getVoiceLanguage() != null ? preference.getVoiceLanguage() : "es-ES")
                 .attendanceCheckInMethod(normalizeAttendanceCheckInMethod(preference.getAttendanceCheckInMethod()))
+                .weeklyReportEmailEnabled(Boolean.TRUE.equals(preference.getWeeklyReportEmailEnabled()))
                 .notificationPreferences(channels)
                 .trainingPreferences(preference.getTrainingPreferences())
                 .createdAt(preference.getCreatedAt())

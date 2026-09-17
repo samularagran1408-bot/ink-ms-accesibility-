@@ -31,4 +31,7 @@ public class PreferenceRequest {
 
     @Pattern(regexp = "qr|form", message = "El check-in debe ser 'qr' o 'form'")
     private String attendanceCheckInMethod;
+
+    /** Programar envío semanal del reporte por correo (HU35). */
+    private Boolean weeklyReportEmailEnabled;
 }
