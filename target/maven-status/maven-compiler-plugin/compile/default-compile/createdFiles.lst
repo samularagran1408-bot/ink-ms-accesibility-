@@ -11,6 +11,7 @@ com\inklusport\accessibility\model\NotificationLog.class
 com\inklusport\accessibility\dto\ErrorResponse.class
 com\inklusport\accessibility\model\CommandLog$CommandLogBuilder.class
 com\inklusport\accessibility\service\NotificationRetentionService.class
+com\inklusport\accessibility\service\NotificationService$LocalizedContent.class
 com\inklusport\accessibility\model\NotificationPreference$NotificationPreferenceBuilder.class
 com\inklusport\accessibility\dto\CommandLogRequest.class
 com\inklusport\accessibility\service\AssistiveCommandCatalog$Match.class

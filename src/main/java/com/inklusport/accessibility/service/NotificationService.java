@@ -48,6 +48,7 @@ public class NotificationService {
         String storageUserId = emailTarget != null ? emailTarget : (userId != null ? userId.trim() : null);
 
         AlertChannels channels = resolveAlertChannels(storageUserId, userId);
+        LocalizedContent content = localize(request, channels.language());
 
         Map<String, Boolean> deliveryStatus = new HashMap<>();
         deliveryStatus.put("push", channels.visual);
@@ -77,8 +78,8 @@ public class NotificationService {
         Notification notification = Notification.builder()
                 .userId(storageUserId)
                 .type(request.getType())
-                .title(request.getTitle())
-                .body(request.getBody())
+                .title(content.title())
+                .body(content.body())
                 .eventId(request.getEventId())
                 .priority(request.getPriority() != null ? request.getPriority() : "medium")
                 .adaptations(adaptations)
@@ -96,8 +97,8 @@ public class NotificationService {
         if (emailTarget != null) {
             boolean sent = notificationEmailService.sendNotificationEmail(
                     emailTarget,
-                    request.getTitle(),
-                    request.getBody()
+                    content.title(),
+                    content.body()
             );
             deliveryStatus.put("email", sent);
             notification.setDeliveryStatus(deliveryStatus);
@@ -122,15 +123,17 @@ public class NotificationService {
 
     /** Lista las notificaciones recientes del usuario. */
     public List<NotificationResponse> getUserNotifications(String userId) {
+        String language = findPreference(userId).map(UserPreference::getLanguage).orElse("es");
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_NOTIFICATIONS)).stream()
-                .map(this::convertToResponse)
+            .map(notification -> convertToResponse(notification, language))
                 .collect(Collectors.toList());
     }
 
     /** Lista solo las notificaciones no leídas del usuario. */
     public List<NotificationResponse> getUnreadNotifications(String userId) {
+        String language = findPreference(userId).map(UserPreference::getLanguage).orElse("es");
         return notificationRepository.findByUserIdAndReadFalseOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_UNREAD)).stream()
-                .map(this::convertToResponse)
+            .map(notification -> convertToResponse(notification, language))
                 .collect(Collectors.toList());
     }
 
@@ -217,14 +220,85 @@ public class NotificationService {
             String language
     ) {}
 
+    private record LocalizedContent(String title, String body) {}
+
+    private LocalizedContent localize(NotificationRequest request, String language) {
+        if (!"en".equalsIgnoreCase(language)) {
+            return new LocalizedContent(request.getTitle(), request.getBody());
+        }
+
+        String type = request.getType() == null ? "" : request.getType().toLowerCase();
+        String title = request.getTitle();
+        String body = request.getBody();
+        switch (type) {
+            case "attendance_confirmed" -> {
+                title = "Attendance confirmed";
+                body = "Your check-in at " + valueAfter(body, "Tu check-in en ", " was recorded.");
+            }
+            case "attendance_checkin" -> {
+                title = "New check-in";
+                body = body.replace(" registró asistencia en ", " checked in at ");
+            }
+            case "event_cancelled", "admin_event_cancelled" -> {
+                title = "Event cancelled";
+                body = body.replace("El evento ", "The event ").replace(" fue cancelado.", " was cancelled.");
+            }
+            case "role_request_approved" -> {
+                title = "Role request approved";
+                body = body.replace("Tu solicitud del rol ", "Your request for the ")
+                        .replace(" fue aprobada.", " was approved.")
+                        .replace(" Recarga la página para que se cargue tu nuevo rol.", " Reload the page to load your new role.");
+            }
+            case "role_request_rejected" -> {
+                title = "Role request rejected";
+                body = body.replace("Tu solicitud del rol ", "Your request for the ")
+                        .replace(" fue rechazada.", " was rejected.")
+                        .replace(" Conservas el rol Usuario.", " You keep the User role.")
+                        .replace(" Si crees que es un error, contacta a un administrador.", " If you think this is an error, contact an administrator.");
+            }
+            case "admin_user_registered" -> {
+                title = "New user registered";
+                body = body.replace("El usuario ", "User ").replace(" se registró por primera vez.", " registered for the first time.");
+            }
+            case "admin_role_request" -> {
+                title = "New role request";
+                body = body.replace("El usuario ", "User ")
+                        .replace(" solicitó el rol ", " requested the ")
+                        .replace(". Revísala en Solicitudes de rol.", ". Review it in Role requests.");
+            }
+            default -> {
+                return new LocalizedContent(title, body);
+            }
+        }
+        return new LocalizedContent(title, body);
+    }
+
+    private String valueAfter(String value, String prefix, String suffix) {
+        if (value == null || !value.startsWith(prefix)) {
+            return value == null ? "the event" : value;
+        }
+        String result = value.substring(prefix.length());
+        int suffixIndex = result.indexOf(suffix);
+        return suffixIndex >= 0 ? result.substring(0, suffixIndex) : result;
+    }
+
     /** Convierte el modelo de notificación a DTO de respuesta. */
     private NotificationResponse convertToResponse(Notification notification) {
+        return convertToResponse(notification, "es");
+    }
+
+    private NotificationResponse convertToResponse(Notification notification, String language) {
+        NotificationRequest request = new NotificationRequest();
+        request.setType(notification.getType());
+        request.setTitle(notification.getTitle());
+        request.setBody(notification.getBody());
+        LocalizedContent content = localize(request, language);
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .userId(notification.getUserId())
                 .type(notification.getType())
-                .title(notification.getTitle())
-                .body(notification.getBody())
+                .title(content.title())
+                .body(content.body())
                 .eventId(notification.getEventId())
                 .priority(notification.getPriority())
                 .adaptations(notification.getAdaptations())
